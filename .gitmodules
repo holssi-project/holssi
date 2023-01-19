@@ -1,0 +1,8 @@
+[submodule "app/src/lib/entry-js"]
+	path = app/src/lib/entry-js
+	url = https://github.com/entrylabs/entryjs
+	branch = dist/offline_v2.0.54
+[submodule "app/src/lib/entry-tool"]
+	path = app/src/lib/entry-tool
+	url = https://github.com/entrylabs/entry-tool
+	branch = dist/20221024

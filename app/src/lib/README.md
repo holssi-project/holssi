@@ -1,0 +1,2 @@
+entryjs 및 entryjs가 의존하는 외부 vendor 라이브러리들  
+대부분은 [entrylabs/entry-offline/src/renderer/resources/vendor](https://github.com/entrylabs/entry-offline/tree/2bfa9a0d13d003e39a6e2a062f91a34878d10505/src/renderer/resources/vendor)에서 가져왔다.
