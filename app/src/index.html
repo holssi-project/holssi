@@ -1,17 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="style.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/main.js" defer></script>
-    <style>
-    </style>
-  </head>
 
-  <body>
-    <div class="container">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bintry</title>
+  <link rel='stylesheet' href='/lib/entry-js/dist/entry.css' />
+  <link rel='stylesheet' href='/lib/entry-tool/dist/entry-tool.css' />
+</head>
+
+<body>
+  <div id="workspace">
+  </div>
+
+  <div id="bintry-credit">
+    <div>
+      엔트리 + Bintry
     </div>
-  </body>
+  </div>
+
+  <script src="/lib/entry-js/extern/lang/ko.js"></script>
+  <script src="/lib/entry-js/extern/util/static.js"></script>
+
+  <script type="text/javascript" src='/lib/lodash.min.js'></script>
+  <script type="text/javascript" src='/lib/jquery.min.js'></script>
+  <script type="text/javascript" src='/lib/entry-tool/dist/entry-tool.js'></script>
+
+  <script type='text/javascript' src='/lib/jquery-ui.min.js'></script>
+  <!-- <script type='text/javascript' src='/lib/socket.io.min.js'></script> -->
+  <script type='text/javascript' src='/lib/preloadjs-0.6.0.min.js'></script>
+  <script type='text/javascript' src='/lib/easeljs-0.8.0.min.js'></script>
+  <script type='text/javascript' src='/lib/soundjs-0.6.0.combined.js'></script>
+  <script type='text/javascript' src='/lib/flashaudioplugin-0.6.0.combined.js'></script>
+  <script type='text/javascript' src='/lib/velocity.min.js'></script>
+
+  <script type='text/javascript' src='/lib/fuzzy.js'></script>
+
+  <script type='text/javascript' src='/lib/entry-js/extern/blockly/blockly_compressed.js'></script>
+  <script type='text/javascript' src='/lib/entry-js/extern/util/bignumber.min.js'></script>
+  <script type='text/javascript' src='/lib/entry-js/extern/util/CanvasInput.js'></script>
+  <script type='text/javascript' src='/lib/entry-js/extern/util/handle.js'></script>
+  <script type='text/javascript' src='/lib/entry-js/extern/util/filbert.js'></script>
+  <script type='text/javascript' src='/lib/entry-js/extern/util/ndgmr.Collision.js'></script>
+
+  <script type='text/javascript' src='/lib/entry-js/dist/entry.js'></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      let initOption = {
+        // 원래는 type를 minimize로 초기화 해야하지만 minimize가 올바르게 작동하지 않아서 트릭을 사용.
+        // 초기화는 workspace로 하고 canvas 외 다른 요소는 display: none을 적용하고,
+        // 이후 type을 phone으로 바꾼다.
+        type: 'workspace',
+        libDir: '/lib',
+        hardwareEnable: false,
+        dataTableDisable: true,
+        expansionDisable: true,
+        aiUtilizeDisable: true,
+        textCodingEnable: false,
+        projectsaveable: false,
+        objectEditable: false,
+        soundeditable: false,
+        pictureeditable: false,
+        sceneEditable: false,
+      };
+      Entry.init(document.getElementById('workspace'), initOption);
+      new EntryScreenFixer().fix()
+      Entry.type = 'phone';
+      Entry.loadProject();
+      setTimeout(() => {
+        Entry.engine.toggleRun();
+        document.getElementById('bintry-credit').style = 'display: none;'
+      }, 1000);
+    })
+  </script>
+  <script type='text/javascript' src='/lib/BetterEntryScreen.js'></script>
+</body>
+
 </html>
