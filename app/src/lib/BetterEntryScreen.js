@@ -670,4 +670,4 @@ window.EntryScreenFixer = class EntryScreenFixer {
     }
 }
 
-new EntryScreenFixer().fix()
+// new EntryScreenFixer().fix()

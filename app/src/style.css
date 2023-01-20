@@ -26,11 +26,9 @@ body {
   height: 100%;
   width: 100%;
   background-color: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Pretendard', sans-serif;
-  color: white;
-  font-size: 50px;
-  font-weight: 700;
+  background-image: url(/assets/credit.svg);
+  background-repeat: no-repeat;
+  background-size: 50%;
+  background-position: center;
+  transition: opacity 1s linear;
 }
