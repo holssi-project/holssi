@@ -7,8 +7,8 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "bintry",
-    "version": "0.0.0"
+    "productName": "홀씨",
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -20,7 +20,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Utilities",
       "copyright": "",
       "deb": {
         "depends": []
@@ -33,7 +33,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "dev.jedeop.holssi.example",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -60,10 +60,11 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 360,
         "resizable": true,
-        "title": "bintry",
-        "width": 800
+        "title": "홀씨",
+        "width": 640,
+        "fileDropEnabled": false
       }
     ]
   }
