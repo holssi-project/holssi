@@ -14,9 +14,6 @@
   <div id="workspace">
   </div>
 
-  <div id="bintry-credit">
-  </div>
-
   <script src="/lib/entry-js/extern/lang/ko.js"></script>
   <script src="/lib/entry-js/extern/util/static.js"></script>
 
@@ -42,35 +39,24 @@
   <script type='text/javascript' src='/lib/entry-js/extern/util/ndgmr.Collision.js'></script>
 
   <script type='text/javascript' src='/lib/entry-js/dist/entry.js'></script>
+  <script type='text/javascript' src='/lib/BetterEntryScreen.js'></script>
 
-  <script type="text/javascript">
+  <script type="module">
+    import {project} from './assets/project.js'
+    console.log(project)
     let initOption = {
-      // 원래는 type를 minimize로 초기화 해야하지만 minimize가 올바르게 작동하지 않아서 트릭을 사용.
-      // 초기화는 workspace로 하고 canvas 외 다른 요소는 display: none을 적용하고,
-      // 이후 type을 phone으로 바꾼다.
-      type: 'workspace',
+      type: 'minimize',
       libDir: '/lib',
       hardwareEnable: false,
       dataTableDisable: true,
       expansionDisable: true,
       aiUtilizeDisable: true,
-      textCodingEnable: false,
-      projectsaveable: false,
-      objectEditable: false,
-      soundeditable: false,
-      pictureeditable: false,
-      sceneEditable: false,
     };
     Entry.init(document.getElementById('workspace'), initOption);
-    Entry.type = 'phone';
-    Entry.loadProject();
-    setTimeout(() => {
-      // new EntryScreenFixer().fix()
-      Entry.engine.toggleRun();
-      document.getElementById('bintry-credit').style = 'opacity: 0;';
-    }, 1000);
+    Entry.loadProject(project);
+    new EntryScreenFixer().fix()
+    Entry.engine.toggleRun();
   </script>
-  <!-- <script type='text/javascript' src='/lib/BetterEntryScreen.js'></script> -->
 </body>
 
 </html>

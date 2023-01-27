@@ -4,31 +4,15 @@
 body {
   margin: 0;
   overflow: hidden;
+  background-color: black;
+}
+#workspace {
+  min-width: unset !important;
 }
 #entryCanvas {
-  position: fixed;
-  border: none;
   height: 100% !important;
   width: 100% !important;
-  object-fit: contain;
-  background-color: black;
 }
-.entrySceneWorkspace, .propertyPanel, .entryObjectSelectedImgWorkspace, .entryPlaygroundWorkspace, .entryEngineButtonWrapper, .entryEngineWorkspace_w > :not(#entryCanvas) {
-  display: none !important;
-}
-.entryEngineWorkspace_w {
-  border: none !important;
-}
-#bintry-credit {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-color: black;
-  background-image: url(/assets/credit.svg);
-  background-repeat: no-repeat;
-  background-size: 50%;
-  background-position: center;
-  transition: opacity 1s linear;
+.entryEngineMinimize, .entryRunButtonBigMinimize {
+  display: none;
 }
