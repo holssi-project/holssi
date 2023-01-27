@@ -41,9 +41,7 @@
   <script type='text/javascript' src='/lib/entry-js/dist/entry.js'></script>
   <script type='text/javascript' src='/lib/BetterEntryScreen.js'></script>
 
-  <script type="module">
-    import {project} from './assets/project.js'
-    console.log(project)
+  <script type="text/javascript">
     let initOption = {
       type: 'minimize',
       libDir: '/lib',
@@ -53,9 +51,25 @@
       aiUtilizeDisable: true,
     };
     Entry.init(document.getElementById('workspace'), initOption);
-    Entry.loadProject(project);
-    new EntryScreenFixer().fix()
-    Entry.engine.toggleRun();
+
+    fetch("/project/temp/project.json")
+      .then(d => d.json())
+      .then(project => {
+        for (let object of project.objects) {
+          for (let picture of object.sprite.pictures) {
+            if (picture.fileurl) {
+              if (picture.fileurl.startsWith("./bower_components/")) {
+                picture.fileurl = picture.fileurl.replace("./bower_components/", "/lib/");
+              } else {
+                picture.fileurl = `/project/${picture.fileurl}`;
+              }
+            }
+          }
+        }
+        Entry.loadProject(project);
+        new EntryScreenFixer().fix()
+        Entry.engine.toggleRun();
+      })
   </script>
 </body>
 
