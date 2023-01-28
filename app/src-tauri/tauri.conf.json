@@ -45,7 +45,7 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
+      "targets": ["app", "msi"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -61,7 +61,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 360,
+        "height": 390,
         "resizable": true,
         "title": "홀씨",
         "width": 640,
