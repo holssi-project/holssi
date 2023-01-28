@@ -62,16 +62,7 @@ fn main() -> Result<()> {
         })?;
 
         let _ = fs::remove_dir_all(boilerplate_path.join("node_modules"));
-        let output = Command::new("npm")
-            .arg("install")
-            .current_dir(boilerplate_path)
-            .output()
-            .context("npm install에 실패했습니다.")?;
-        if !output.status.success() {
-            io::stdout().write_all(&output.stdout).unwrap();
-            io::stderr().write_all(&output.stderr).unwrap();
-            bail!("npm install에 실패했습니다.");
-        }
+        command("npm install", boilerplate_path).context("npm install에 실패했습니다.")?;
 
         boilerplate_path
     } else {
@@ -97,28 +88,24 @@ fn main() -> Result<()> {
             .context("Tauri 설정 파일을 읽을 수 없습니다.")?;
         let mut tauri_config: Value = serde_json::from_str(&raw_config)?;
 
-        // 바이너리 이름 지정
         let name = match cli.name {
             Some(name) => name,
             None => project.name,
         };
-        tauri_config["package"]["productName"] = Value::String(name.clone());
-        tauri_config["tauri"]["windows"][0]["title"] = Value::String(name);
-        // 바이너리 버전 지정
-        tauri_config["package"]["version"] = Value::String(cli.set_version);
-        // 앱 제작자 지정
         let author = match cli.author {
             Some(name) => name,
             None => "entryuser".to_string(),
         };
-        tauri_config["tauri"]["bundle"]["publisher"] = Value::String(author);
-
-        // 앱 고유 식별자 지정
         let ident: String = thread_rng()
             .sample_iter(&Alphanumeric)
             .take(15)
             .map(char::from)
             .collect();
+
+        tauri_config["package"]["productName"] = Value::String(name.clone());
+        tauri_config["tauri"]["windows"][0]["title"] = Value::String(name);
+        tauri_config["package"]["version"] = Value::String(cli.set_version);
+        tauri_config["tauri"]["bundle"]["publisher"] = Value::String(author);
         tauri_config["tauri"]["bundle"]["identifier"] =
             Value::String(format!("dev.jedeop.holssi.{ident}"));
 
@@ -135,17 +122,7 @@ fn main() -> Result<()> {
 
     // 빌드
     {
-        let output = Command::new("npm")
-            .args(["run", "tauri", "build"])
-            .current_dir(boilerplate_path)
-            .output()
-            .context("빌드에 실패했습니다.")?;
-
-        if !output.status.success() {
-            io::stdout().write_all(&output.stdout).unwrap();
-            io::stderr().write_all(&output.stderr).unwrap();
-            bail!("빌드에 실패했습니다.");
-        }
+        command("npm run tauri build", boilerplate_path).context("빌드에 실패했습니다.")?;
 
         fs::create_dir_all(&cli.out)
             .with_context(|| format!("{} 디렉토리를 생성하는데 실패했습니다.", cli.out))?;
@@ -163,6 +140,30 @@ fn main() -> Result<()> {
     }
 
     println!("빌드에 성공했습니다!");
+
+    Ok(())
+}
+
+fn command(cmd: &str, cwd: &Path) -> Result<()> {
+    let output = if cfg!(target_os = "windows") {
+        Command::new("cmd")
+            .args(["/C", cmd])
+            .current_dir(cwd)
+            .output()
+            .context("명령줄 실행을 실패했습니다.")?
+    } else {
+        Command::new("sh")
+            .args(["-c", cmd])
+            .current_dir(cwd)
+            .output()
+            .context("명령줄 실행을 실패했습니다.")?
+    };
+
+    if !output.status.success() {
+        io::stdout().write_all(&output.stdout).unwrap();
+        io::stderr().write_all(&output.stderr).unwrap();
+        bail!("명령줄 실행을 실패했습니다.");
+    };
 
     Ok(())
 }
