@@ -89,9 +89,9 @@ dependencies = [
 
 [[package]]
 name = "dotent"
-version = "0.2.9"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75d20067f27433a5a1ff4a094e9d3c3e49c62ae25158ed2561daecf8d6020375"
+checksum = "0b10b2bd4cf75a60e1834c2cb23656981f611042a56c22ee372d51313768bda5"
 dependencies = [
  "flate2",
  "lazy_static",

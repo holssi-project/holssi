@@ -9,7 +9,7 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use dotent::{entry::Entry, project::Project};
 use fs_extra::dir::CopyOptions;
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rand::{distributions::Uniform, thread_rng, Rng};
 use serde_json::Value;
 
 #[derive(Parser)]
@@ -93,12 +93,18 @@ fn main() -> Result<()> {
             None => project.name,
         };
         let author = match cli.author {
-            Some(name) => name,
+            Some(name) => {
+                if !name.chars().all(char::is_alphabetic) {
+                    bail!("제작자 이름은 오직 알파벳으로만 이루어져 있어야 합니다.")
+                }
+                name
+            }
             None => "entryuser".to_string(),
         };
+        let distr = Uniform::new_inclusive(b'a', b'z');
         let ident: String = thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(15)
+            .sample_iter(distr)
+            .take(20)
             .map(char::from)
             .collect();
 
