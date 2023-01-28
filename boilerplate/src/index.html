@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel='stylesheet' href='./lib/entry-js/dist/entry.css' />
+  <link rel='stylesheet' href='./lib/entry-tool/dist/entry-tool.css' />
+</head>
+
+<body>
+  <div id="workspace">
+  </div>
+
+  <script src="./lib/entry-js/extern/lang/ko.js"></script>
+  <script src="./lib/entry-js/extern/util/static.js"></script>
+
+  <script type="text/javascript" src='./lib/lodash.min.js'></script>
+  <script type="text/javascript" src='./lib/jquery.min.js'></script>
+  <script type="text/javascript" src='./lib/entry-tool/dist/entry-tool.js'></script>
+
+  <script type='text/javascript' src='./lib/jquery-ui.min.js'></script>
+  <script type='text/javascript' src='./lib/preloadjs-0.6.0.min.js'></script>
+  <script type='text/javascript' src='./lib/easeljs-0.8.0.min.js'></script>
+  <script type='text/javascript' src='./lib/soundjs-0.6.0.combined.js'></script>
+  <script type='text/javascript' src='./lib/flashaudioplugin-0.6.0.combined.js'></script>
+
+  <script type='text/javascript' src='./lib/entry-js/extern/blockly/blockly_compressed.js'></script>
+  <script type='text/javascript' src='./lib/entry-js/extern/util/bignumber.min.js'></script>
+  <script type='text/javascript' src='./lib/entry-js/extern/util/CanvasInput.js'></script>
+  <script type='text/javascript' src='./lib/entry-js/extern/util/handle.js'></script>
+  <script type='text/javascript' src='./lib/entry-js/extern/util/filbert.js'></script>
+  <script type='text/javascript' src='./lib/entry-js/extern/util/ndgmr.Collision.js'></script>
+
+  <script type='text/javascript' src='./lib/entry-js/dist/entry.js'></script>
+  <script type='text/javascript' src='./lib/BetterEntryScreen.js'></script>
+
+  <script type="text/javascript">
+    let initOption = {
+      type: 'minimize',
+      libDir: './lib',
+      hardwareEnable: false,
+      dataTableDisable: true,
+      expansionDisable: true,
+      aiUtilizeDisable: true,
+    };
+    Entry.init(document.getElementById('workspace'), initOption);
+
+    fetch("./project/temp/project.json")
+      .then(d => d.json())
+      .then(project => {
+        document.title = project.name;
+        for (let object of project.objects) {
+          for (let picture of object.sprite.pictures) {
+            if (picture.fileurl) {
+              if (picture.fileurl.startsWith("./bower_components/")) {
+                picture.fileurl = picture.fileurl.replace("./bower_components/", "./lib/");
+              } else {
+                picture.fileurl = `./project/${picture.fileurl}`;
+              }
+            }
+          }
+          for (let sound of object.sprite.sounds) {
+            if (sound.fileurl) {
+              if (sound.fileurl.startsWith("./bower_components/")) {
+                sound.fileurl = sound.fileurl.replace("./bower_components/", "./lib/");
+              } else {
+                sound.fileurl = `./project/${sound.fileurl}`;
+              }
+            }
+          }
+        }
+        Entry.loadProject(project);
+        new EntryScreenFixer().fix()
+        Entry.engine.toggleRun();
+      })
+  </script>
+</body>
+
+</html>
