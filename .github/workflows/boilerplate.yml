@@ -6,22 +6,24 @@ on:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout main
+      uses: actions/checkout@v3
       with:
         submodules: true
         path: 'main'
-    - uses: actions/checkout@v3
+    - name: Checkout boilerplate
+      uses: actions/checkout@v3
       with:
         path: 'boilerplate'
         ref: 'boilerplate'
     - name: Copy
       run: |
-        rm -rf ./boilerplate
-        cp -r ./main/boilerplate ./boilerplate
+        cd ./boilerplate
+        git rm -rf .
+        cp -r ../main/boilerplate .
     - name: Commit and push
       run: |
         cd ./boilerplate
