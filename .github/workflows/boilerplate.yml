@@ -21,7 +21,7 @@ jobs:
     - name: Copy
       run: |
         rm -rf ./boilerplate
-        cp ./main/boilerplate ./boilerplate
+        cp -r ./main/boilerplate ./boilerplate
     - name: Commit and push
       run: |
         cd ./boilerplate
