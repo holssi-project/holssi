@@ -1,5 +1,7 @@
 # https://github.com/marketplace/actions/rust-release-binary
 
+name: Release binary
+
 on:
   release:
     types: [created]
@@ -15,7 +17,7 @@ jobs:
           - target: x86_64-pc-windows-gnu
           - target: x86_64-apple-darwin
     steps:
-      - uses: actions/checkout@3
+      - uses: actions/checkout@2
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.2
         env:
