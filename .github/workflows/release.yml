@@ -10,12 +10,17 @@ jobs:
   release:
     name: release ${{ matrix.target }}
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
     strategy:
       fail-fast: false
       matrix:
         include:
           - target: x86_64-pc-windows-gnu
           - target: x86_64-apple-darwin
+
     steps:
       - uses: actions/checkout@v3
       - name: Compile and release
