@@ -71,8 +71,10 @@
           }
         }
         Entry.loadProject(project);
-        new EntryScreenFixer().fix()
-        Entry.engine.toggleRun();
+        Entry.addEventListener("loadComplete", () => {
+          new EntryScreenFixer().fix();
+          Entry.engine.toggleRun();
+        })
       })
   </script>
 </body>
