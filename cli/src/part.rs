@@ -72,8 +72,13 @@ pub(crate) fn unpack_ent(file: &str, boilerplate: &Path) -> Result<()> {
 
 pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> Result<()> {
     let app_id = match &cli.app_id {
-        Some(id) => format!("holssi_{id}"),
-        None => format!("holssi_{}", gen_id(thread_rng())),
+        Some(id) => {
+            if !id.chars().all(|c| c.is_ascii_alphanumeric()) {
+                bail!("앱 고유 ID는 알파벳과 숫자로만 이루어져야 합니다.");
+            }
+            format!("holssi-{id}")
+        }
+        None => format!("holssi-{}", gen_id(thread_rng())),
     };
     let product_name = match &cli.name {
         Some(name) => {
