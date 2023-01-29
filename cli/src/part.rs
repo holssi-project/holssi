@@ -7,7 +7,7 @@ use serde_json::Value;
 
 use crate::{
     util::{command, log, read_json},
-    Cli,
+    Cli, Platform,
 };
 
 pub(crate) fn clone_boilerplate(path: &Path) -> Result<()> {
@@ -95,10 +95,16 @@ pub(crate) fn install_deps(boilerplate: &Path) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn build(boilerplate: &Path) -> Result<()> {
+pub(crate) fn build(platform: &Option<Platform>, boilerplate: &Path) -> Result<()> {
     log("Info", "앱을 빌드합니다.");
 
-    command("npm run make", &boilerplate.join("holssi")).context("앱을 빌드할 수 없습니다.")?;
+    let args = match platform {
+        Some(platform) => platform.as_arg(),
+        None => "",
+    };
+    let cmd = format!("npm run make -- {args}");
+
+    command(&cmd, &boilerplate.join("holssi")).context("앱을 빌드할 수 없습니다.")?;
 
     log("Info", "빌드에 성공했습니다.");
 

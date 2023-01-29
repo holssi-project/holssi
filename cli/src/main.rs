@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 use part::{
     build, cleanup, clone_boilerplate, copy_boilerplate, copy_build_result, install_deps,
@@ -39,6 +39,25 @@ struct Cli {
     /// --boilerplate로 지정된 경로에서 보일러플레이트를 복사해 사용합니다. 지정하지 않을 경우 깃허브 저장소에서 보일러플레이트를 다운로드 받습니다.
     #[arg(long)]
     local: bool,
+    /// 빌드 플랫폼.
+    #[arg(long, value_enum)]
+    platform: Option<Platform>,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum Platform {
+    DarwinX64,
+    DarwinArm64,
+    Win32X64,
+}
+impl Platform {
+    fn as_arg(&self) -> &str {
+        match self {
+            Platform::DarwinX64 => "--platform darwin --arch x64",
+            Platform::DarwinArm64 => "--platform darwin --arch arm64",
+            Platform::Win32X64 => "--platform win32 --arch x64",
+        }
+    }
 }
 
 fn main() -> Result<()> {
@@ -55,7 +74,7 @@ fn main() -> Result<()> {
     unpack_ent(&cli.file, &boilerplate)?;
     set_package_info(&cli, &boilerplate)?;
     install_deps(&boilerplate)?;
-    build(&boilerplate)?;
+    build(&cli.platform, &boilerplate)?;
     copy_build_result(&cli.out, &boilerplate)?;
     cleanup(&boilerplate)?;
 
