@@ -7,6 +7,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout main
@@ -24,16 +27,9 @@ jobs:
         cd ./boilerplate
         git rm -rf .
         cp -r ../main/boilerplate .
-    - name: Commit
+    - name: Commit and Push
       run: |
         cd ./boilerplate
-        git config --local user.email "jedeop@jedeop.dev"
-        git config --local user.name "holssi-action[bot]"
         git add .
         git commit -m "$GITHUB_SHA"
-    - name: Push
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        directory: ./boilerplate
-        branch: boilerplate
+        git push
