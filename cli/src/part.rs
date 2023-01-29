@@ -84,7 +84,7 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> R
             project["name"].as_str().unwrap().to_string()
         }
     };
-    let desc = cli.desc.clone().unwrap_or("".to_string());
+    let desc = cli.desc.clone();
     let author = cli.author.clone();
     let version = cli.set_version.clone();
 
@@ -99,6 +99,7 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> R
     let mut package_json =
         read_json(&package_json_path).context("메타데이너 파일을 읽을 수 없습니다.")?;
 
+    package_json["name"] = Value::String(product_name.clone());
     package_json["productName"] = Value::String(product_name);
     package_json["version"] = Value::String(version);
     package_json["description"] = Value::String(desc);

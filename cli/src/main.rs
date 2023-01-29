@@ -31,8 +31,8 @@ struct Cli {
     #[arg(short, long)]
     icon: Option<String>,
     /// 작품 설명
-    #[arg(long)]
-    desc: Option<String>,
+    #[arg(long, default_value = "멋진 엔트리 작품")]
+    desc: String,
     /// 빌드 결과물을 저장할 디렉토리
     #[arg(short, long, default_value = "./out")]
     out: String,
