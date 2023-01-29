@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use dotent::entry::Entry;
 use fs_extra::dir::CopyOptions;
 use serde_json::Value;
@@ -9,6 +9,27 @@ use crate::{
     util::{command, log, read_json},
     Cli, Platform,
 };
+
+pub(crate) fn get_files(
+    files: &Option<Vec<String>>,
+    folder: &Option<String>,
+) -> Result<Vec<String>> {
+    let files = match files {
+        Some(files) => files.clone(),
+        None => match folder {
+            Some(folder) => fs::read_dir(folder)
+                .with_context(|| format!("폴더 {folder}를 읽을 수 없습니다."))?
+                .map(|res| {
+                    res.with_context(|| format!("폴더 {folder}를 읽는 중 문제가 발생했습니다."))
+                        .map(|e| e.path().to_str().unwrap().to_string())
+                })
+                .collect::<Result<Vec<String>>>()?,
+            None => bail!("입력 파일이 지정되지 않았습니다."),
+        },
+    };
+
+    Ok(files)
+}
 
 pub(crate) fn clone_boilerplate(path: &Path) -> Result<()> {
     log("Info", "보일러플레이트를 다운로드합니다.");
@@ -48,9 +69,15 @@ pub(crate) fn unpack_ent(file: &str, boilerplate: &Path) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<()> {
+pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> Result<()> {
     let product_name = match &cli.name {
-        Some(name) => name.clone(),
+        Some(name) => {
+            if index == 0 {
+                name.clone()
+            } else {
+                format!("{name}_{index}")
+            }
+        }
         None => {
             let project = read_json(&boilerplate.join("holssi/src/project/temp/project.json"))
                 .context("엔트리 작품 정보를 읽을 수 없습니다.")?;

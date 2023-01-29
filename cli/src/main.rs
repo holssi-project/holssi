@@ -2,8 +2,8 @@ use anyhow::Result;
 use clap::{Parser, ValueEnum};
 
 use part::{
-    build, cleanup, clone_boilerplate, copy_boilerplate, copy_build_result, install_deps,
-    set_package_info, unpack_ent,
+    build, cleanup, clone_boilerplate, copy_boilerplate, copy_build_result, get_files,
+    install_deps, set_package_info, unpack_ent,
 };
 use util::{create_temp_dir, log};
 
@@ -14,7 +14,10 @@ mod util;
 #[command(author, version, about, long_about = None)]
 struct Cli {
     /// 빌드할 엔트리 작품 파일
-    file: String,
+    files: Option<Vec<String>>,
+    /// 빌드할 엔트리 작품 파일이 있는 폴더. 이 폴더 안의 모든 엔트리 파일을 빌드합니다.
+    #[arg(short, long)]
+    folder: Option<String>,
     /// 작품 이름. [default: 엔트리 작품의 이름]
     #[arg(short, long)]
     name: Option<String>,
@@ -63,22 +66,30 @@ impl Platform {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    let boilerplate = create_temp_dir()?;
+    let files = get_files(&cli.files, &cli.folder)?;
 
-    if cli.local {
-        copy_boilerplate(&cli.boilerplate, &boilerplate)?;
-    } else {
-        clone_boilerplate(&boilerplate)?;
+    for (index, file) in files.iter().enumerate() {
+        log("Info", &format!("{file}을 빌드합니다."));
+        log("", "");
+
+        let boilerplate = create_temp_dir()?;
+
+        if cli.local {
+            copy_boilerplate(&cli.boilerplate, &boilerplate)?;
+        } else {
+            clone_boilerplate(&boilerplate)?;
+        }
+
+        unpack_ent(file, &boilerplate)?;
+        set_package_info(&cli, &boilerplate, index)?;
+        install_deps(&boilerplate)?;
+        build(&cli.platform, &boilerplate)?;
+        copy_build_result(&cli.out, &boilerplate)?;
+        cleanup(&boilerplate)?;
+
+        log("", "");
     }
 
-    unpack_ent(&cli.file, &boilerplate)?;
-    set_package_info(&cli, &boilerplate)?;
-    install_deps(&boilerplate)?;
-    build(&cli.platform, &boilerplate)?;
-    copy_build_result(&cli.out, &boilerplate)?;
-    cleanup(&boilerplate)?;
-
-    log("", "");
     log("Success", "모든 동작을 성공적으로 수행했습니다.");
 
     Ok(())

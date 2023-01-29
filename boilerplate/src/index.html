@@ -50,7 +50,6 @@
     fetch("./project/temp/project.json")
       .then(d => d.json())
       .then(project => {
-        document.title = project.name;
         for (let object of project.objects) {
           for (let picture of object.sprite.pictures) {
             if (picture.fileurl) {
