@@ -13,10 +13,9 @@
   },
   "keywords": [],
   "author": {
-    "name": "jedeop",
-    "email": "jedeop@jedeop.dev"
+    "name": "jedeop"
   },
-  "license": "MIT",
+  "license": "",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0"
   },
