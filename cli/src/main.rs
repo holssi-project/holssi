@@ -18,6 +18,9 @@ struct Cli {
     /// 빌드할 엔트리 작품 파일이 있는 폴더. 이 폴더 안의 모든 엔트리 파일을 빌드합니다.
     #[arg(short, long)]
     folder: Option<String>,
+    /// 앱 고유 ID. 알파벳으로만 이루어져 있어야 합니다.
+    #[arg(short = 'i', long)]
+    app_id: Option<String>,
     /// 작품 이름. [default: 엔트리 작품의 이름]
     #[arg(short, long)]
     name: Option<String>,
@@ -28,7 +31,7 @@ struct Cli {
     #[arg(short, long, default_value = "0.0.1", value_name = "VERSION")]
     set_version: String,
     /// 아이콘 이미지
-    #[arg(short, long)]
+    #[arg(long)]
     icon: Option<String>,
     /// 작품 설명
     #[arg(long, default_value = "멋진 엔트리 작품")]

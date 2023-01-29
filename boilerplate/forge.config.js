@@ -1,6 +1,9 @@
+const config = require("./holssi.json");
+
 module.exports = {
   packagerConfig: {
     asar: true,
+    appBundleId: config.appId
   },
   rebuildConfig: {},
   makers: [

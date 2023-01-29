@@ -3,10 +3,11 @@ use std::{fs, path::Path};
 use anyhow::{bail, Context, Result};
 use dotent::entry::Entry;
 use fs_extra::dir::CopyOptions;
+use rand::thread_rng;
 use serde_json::Value;
 
 use crate::{
-    util::{command, log, read_json},
+    util::{command, gen_id, log, read_json},
     Cli, Platform,
 };
 
@@ -70,6 +71,10 @@ pub(crate) fn unpack_ent(file: &str, boilerplate: &Path) -> Result<()> {
 }
 
 pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> Result<()> {
+    let app_id = match &cli.app_id {
+        Some(id) => format!("holssi_{id}"),
+        None => format!("holssi_{}", gen_id(thread_rng())),
+    };
     let product_name = match &cli.name {
         Some(name) => {
             if index == 0 {
@@ -90,16 +95,21 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> R
 
     log("Info", "다음과 같이 메타데이터를 설정합니다.");
     log("", &format!("앱 이름 = {product_name}"));
+    log("", &format!("앱 고유 ID = {app_id}"));
     log("", &format!("앱 설명 = {desc}"));
     log("", &format!("개발자 = {author}"));
     log("", &format!("버전 = {version}"));
 
     let package_json_path = boilerplate.join("holssi/package.json");
+    let holssi_conf_path = boilerplate.join("holssi/holssi.json");
 
     let mut package_json =
-        read_json(&package_json_path).context("메타데이너 파일을 읽을 수 없습니다.")?;
+        read_json(&package_json_path).context("메타데이터 파일을 읽을 수 없습니다.")?;
+    let mut holssi_conf =
+        read_json(&holssi_conf_path).context("메타데이터 파일(2)을 읽을 수 없습니다.")?;
 
-    package_json["name"] = Value::String(product_name.clone());
+    holssi_conf["appId"] = Value::String(format!("dev.jedeop.holssi.{app_id}"));
+    package_json["name"] = Value::String(app_id);
     package_json["productName"] = Value::String(product_name);
     package_json["version"] = Value::String(version);
     package_json["description"] = Value::String(desc);
@@ -110,6 +120,11 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> R
         serde_json::to_string_pretty(&package_json)?,
     )
     .context("메타데이터 파일을 작성할 수 없습니다.")?;
+    fs::write(
+        &holssi_conf_path,
+        serde_json::to_string_pretty(&holssi_conf)?,
+    )
+    .context("메타데이터 파일(2)을 작성할 수 없습니다.")?;
 
     Ok(())
 }
