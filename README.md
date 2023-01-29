@@ -5,6 +5,8 @@
 
 홀씨는 [entryjs](https://github.com/entrylabs/entryjs)와 [Electron](https://www.electronjs.org/)을 이용해 엔트리 작품을 실행 파일로 내보내고 실행시킵니다.
 
+추가로 muno9748님의 [BetterEntryScreen](https://github.com/muno9748/BetterEntryScreen)이 적용되어 있어 더 좋은 해상도로 작품을 실행할 수 있습니다.
+
 # 사용하기
 
 홀씨를 이용해서 엔트리 작품을 실행 파일로 내보내는 방법은 다음과 같습니다.
