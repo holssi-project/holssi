@@ -1,0 +1,32 @@
+name: deploy boilerplate
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+        path: 'main'
+    - uses: actions/checkout@v3
+      with:
+        path: 'boilerplate'
+        ref: 'boilerplate'
+    - name: Copy
+      run: |
+        rm -rf ./boilerplate
+        cp ./main/boilerplate ./boilerplate
+    - name: Commit and push
+      run: |
+        cd ./boilerplate
+        git config --local user.email "jedeop@jedeop.dev"
+        git config --local user.name "holssi action"
+        git add .
+        git commit -m "$GITHUB_SHA"
+        git push
