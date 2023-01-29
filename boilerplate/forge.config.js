@@ -1,6 +1,7 @@
 module.exports = {
   packagerConfig: {
     asar: true,
+    appBundleId: "dev.jedeop.holssi.example"
   },
   rebuildConfig: {},
   makers: [
