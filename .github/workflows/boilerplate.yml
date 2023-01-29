@@ -26,11 +26,11 @@ jobs:
       run: |
         cd ./boilerplate
         git rm -rf .
-        cp -r ../main/boilerplate .
+        cp -r ../main/boilerplate/. .
     - name: Commit and Push
       run: |
         cd ./boilerplate
-        git config --local user.email "jedeop@jedeop.dev"
+        git config --local user.email "holssi-noreply@jedeop.dev"
         git config --local user.name "holssi-action[bot]"
         git add .
         git commit -m "$GITHUB_SHA"
