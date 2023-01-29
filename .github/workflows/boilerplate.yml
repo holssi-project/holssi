@@ -33,5 +33,11 @@ jobs:
         git config --local user.email "holssi-noreply@jedeop.dev"
         git config --local user.name "holssi-action[bot]"
         git add .
-        git commit -m "$GITHUB_SHA"
-        git push
+        if [ -z "$(git status --porcelain)" ]; then 
+          # Working directory clean
+          echo Nothing changed!
+        else 
+          # Uncommitted changes
+          git commit -m "$GITHUB_SHA"
+          git push
+        fi
