@@ -30,6 +30,8 @@ jobs:
     - name: Commit and Push
       run: |
         cd ./boilerplate
+        git config --local user.email "jedeop@jedeop.dev"
+        git config --local user.name "holssi-action[bot]"
         git add .
         git commit -m "$GITHUB_SHA"
         git push
