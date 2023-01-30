@@ -71,8 +71,13 @@ fn main() -> Result<()> {
 
     let files = get_files(&cli.files, &cli.folder)?;
 
+    let file_count = files.len();
+
     for (index, file) in files.iter().enumerate() {
-        log("Info", &format!("{file}을 빌드합니다."));
+        log(
+            "Info",
+            &format!("[{}/{file_count}] {file}을 빌드합니다.", index + 1),
+        );
         log("", "");
 
         let boilerplate = create_temp_dir()?;

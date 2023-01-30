@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{ffi::OsStr, fs, path::Path};
 
 use anyhow::{bail, Context, Result};
 use dotent::entry::Entry;
@@ -20,11 +20,14 @@ pub(crate) fn get_files(
         None => match folder {
             Some(folder) => fs::read_dir(folder)
                 .with_context(|| format!("폴더 {folder}를 읽을 수 없습니다."))?
-                .map(|res| {
-                    res.with_context(|| format!("폴더 {folder}를 읽는 중 문제가 발생했습니다."))
-                        .map(|e| e.path().to_str().unwrap().to_string())
+                .filter_map(|e| e.ok())
+                .map(|e| e.path())
+                .filter(|e| match e.extension() {
+                    Some(ext) => ext == OsStr::new("ent"),
+                    None => false,
                 })
-                .collect::<Result<Vec<String>>>()?,
+                .map(|e| e.to_str().unwrap().to_string())
+                .collect::<Vec<String>>(),
             None => bail!("입력 파일이 지정되지 않았습니다."),
         },
     };
@@ -76,7 +79,11 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path, index: usize) -> R
             if !id.chars().all(|c| c.is_ascii_alphanumeric()) {
                 bail!("앱 고유 ID는 알파벳과 숫자로만 이루어져야 합니다.");
             }
-            format!("holssi-{id}")
+            if index == 0 {
+                format!("holssi-{id}")
+            } else {
+                format!("holssi-{id}-{index}")
+            }
         }
         None => format!("holssi-{}", gen_id(thread_rng())),
     };
