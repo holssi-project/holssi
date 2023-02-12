@@ -1,30 +1,35 @@
 {
   "name": "holssi",
-  "productName": "holssi",
+  "productName": "홀씨",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A great program made with Entry and holssi",
+  "author": {
+    "name": "제덮"
+  },
+  "build": {
+    "appId": "dev.jedeop.holssi.example",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "artifactName": "${productName}-${version}-${arch}-${os}.${ext}",
+      "target": "dir"
+    },
+    "win": {
+      "artifactName": "${productName}-${version}-${arch}-${os}.${ext}",
+      "target": "portable"
+    }
+  },
   "main": "src/index.js",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [],
-  "author": {
-    "name": "jedeop"
-  },
   "license": "",
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
-  },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.4",
-    "@electron-forge/maker-deb": "^6.0.4",
-    "@electron-forge/maker-rpm": "^6.0.4",
-    "@electron-forge/maker-squirrel": "^6.0.4",
-    "@electron-forge/maker-zip": "^6.0.4",
-    "electron": "22.1.0"
+    "electron": "^23.0.0",
+    "electron-builder": "^23.6.0"
   }
 }

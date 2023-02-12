@@ -49,8 +49,9 @@ pub(crate) fn command(cmd: &str, cwd: &Path) -> Result<()> {
             .context("명령줄 실행을 실패했습니다.")?
     };
 
+    stdout().write_all(&output.stdout).unwrap();
     if !output.status.success() {
-        stdout().write_all(&output.stdout).unwrap();
+        // stdout().write_all(&output.stdout).unwrap();
         stderr().write_all(&output.stderr).unwrap();
         bail!("명령줄 실행을 실패했습니다.");
     };
