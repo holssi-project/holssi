@@ -17,6 +17,7 @@
 홀씨 CLI 도구를 실행하기 위해서는 다음의 프로그램이 컴퓨터에 미리 설치되어 있어야합니다.
 - [Node.js](https://nodejs.org/en/) (공식 홈페이지에서 설치해도 되고, `nvm` 등의 도구를 이용해서 설치할 수도 있습니다.)
 - [Git](https://git-scm.com/)
+- `zip` 명령어 (MacOS 타겟으로 실행할 때만 필요합니다.)
 
 ### CLI 도구 준비하기
 
@@ -47,42 +48,31 @@ cd CLI도구가/있는/경로
 ```
 ```
 ./holssi --help
-Usage: holssi [OPTIONS] [FILES]...
+Usage: holssi [OPTIONS] --name-en <NAME_EN> --author <AUTHOR> <FILE>
 
 Arguments:
-  [FILES]...  빌드할 엔트리 작품 파일
+  <FILE>  빌드할 엔트리 작품 파일
 
 Options:
-  -f, --folder <FOLDER>            빌드할 엔트리 작품 파일이 있는 폴더. 이 폴더 안의 모든 엔트리 파일을 빌드합니다
-  -i, --app-id <APP_ID>            앱 고유 ID. 알파벳과 숫자로만 이루어져 있어야 합니다
   -n, --name <NAME>                작품 이름. [default: 엔트리 작품의 이름]
-  -a, --author <AUTHOR>            작품 제작자 [default: 엔둥이]
+  -e, --name-en <NAME_EN>          작품 영문 이름. 로마자과 숫자, '-'로만 이루어져야 합니다
+  -a, --author <AUTHOR>            작품 제작자. 로마자과 숫자, '-'로만 이루어져야 합니다
   -s, --set-version <VERSION>      버전 [default: 0.0.1]
+      --icon <ICON>                아이콘 이미지
       --desc <DESC>                작품 설명 [default: "멋진 엔트리 작품"]
   -o, --out <OUT>                  빌드 결과물을 저장할 디렉토리 [default: ./out]
       --boilerplate <BOILERPLATE>  보일러플레이트 경로. --local 옵션이 지정되었을 때만 사용됩니다 [default: ../boilerplate]
       --local                      --boilerplate로 지정된 경로에서 보일러플레이트를 복사해 사용합니다. 지정하지 않을 경우 깃허브 저장소에서 보일러플레이트를 다운로드 받습니다
-      --platform <PLATFORM>        빌드 플랫폼 [possible values: darwin-x64, darwin-arm64, win32-x64]
+  -p, --platform <PLATFORM>        타겟 운영체제 [default: win] [possible values: mac, win]
+  -r, --arch <ARCH>                타겟 아키텍쳐 [default: x64] [possible values: x64, arm64]
   -h, --help                       Print help
   -V, --version                    Print version
+
 ```
 ### 예제
 ```sh
 # project.ent이라는 이름의 파일을 실행 파일로 빌드하기
-./holssi project.ent
-
-# 제작자, 작품 설명, 버전을 지정해서 빌드하기
-./holssi project.ent -a 제덮 --desc="엔트리 색으로 이루어진 로딩 애니메이션입니다." -s 1.0.0
-```
-
-### 참고
-
-같은 엔트리 작품을 다시 실행 파일로 빌드할 경우, 앱 고유 ID가 같아야 같은 프로그램으로 인식됩니다.
-앱 고유 ID가 다를 경우 옛날에 만든 실행 파일과 새롭게 만든 실행 파일이 서로 다른 프로그램으로 인식됩니다.
-
-앱 고유 ID는 다음과 같이 지정할 수 있습니다. 앱 고유 ID는 영어 알파벳과 숫자로만 이루어져 있어야 하며 앱마다 고유해야 합니다.
-```sh
-./holssi project.ent -i EntryColorLoadingJedeop
+./holssi project.ent --name-en EntryColorLoading --author jedeop --platform mac --arch arm64
 ```
 
 ## Docker 사용하기
