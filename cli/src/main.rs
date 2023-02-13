@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
 
@@ -37,7 +39,7 @@ struct Cli {
     #[arg(short, long, default_value = "./out")]
     out: String,
     /// 보일러플레이트 경로. --local 옵션이 지정되었을 때만 사용됩니다.
-    #[arg(long, default_value = "../boilerplate")]
+    #[arg(long, default_value = "../boilerplate", requires = "local")]
     boilerplate: String,
     /// --boilerplate로 지정된 경로에서 보일러플레이트를 복사해 사용합니다. 지정하지 않을 경우 깃허브 저장소에서 보일러플레이트를 다운로드 받습니다.
     #[arg(long)]
@@ -48,6 +50,12 @@ struct Cli {
     /// 타겟 아키텍쳐
     #[arg(short = 'r', long, value_enum, default_value_t = Arch::X64)]
     arch: Arch,
+    /// 보일러플레이트를 복사하지 않고 주어진 경로에서 빌드를 수행합니다.
+    #[arg(long, requires = "local")]
+    no_copy: bool,
+    /// 보일러플레이트에서 의존성 라이브러리를 설치하지 않습니다.
+    #[arg(long, requires = "local")]
+    no_npm_install: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -91,20 +99,35 @@ fn main() -> Result<()> {
     log("Info", &format!("{}을 빌드합니다.", cli.file));
     log("", "");
 
-    let boilerplate = create_temp_dir()?;
-
-    if cli.local {
-        copy_boilerplate(&cli.boilerplate, &boilerplate)?;
+    let boilerplate = if cli.no_copy {
+        Path::new(&cli.boilerplate).to_path_buf()
     } else {
-        clone_boilerplate(&boilerplate)?;
-    }
+        let boilerplate = create_temp_dir()?;
+
+        if cli.local {
+            copy_boilerplate(&cli.boilerplate, &boilerplate)?;
+        } else {
+            clone_boilerplate(&boilerplate)?;
+        }
+
+        boilerplate.join("holssi")
+    };
 
     unpack_ent(&cli.file, &boilerplate)?;
+
     let package_info = set_package_info(&cli, &boilerplate)?;
-    install_deps(&boilerplate)?;
+
+    if !cli.no_npm_install {
+        install_deps(&boilerplate)?;
+    }
+
     build(&cli.platform, &cli.arch, &boilerplate)?;
+
     copy_build_result(&cli, &boilerplate, &package_info)?;
-    cleanup(&boilerplate)?;
+
+    if !cli.no_copy {
+        cleanup(&boilerplate)?;
+    }
 
     log("", "");
 

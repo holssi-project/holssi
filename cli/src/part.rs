@@ -62,7 +62,7 @@ pub(crate) fn copy_boilerplate(boilerplate: &str, path: &Path) -> Result<()> {
 }
 
 pub(crate) fn unpack_ent(file: &str, boilerplate: &Path) -> Result<()> {
-    Entry::unpack(file, boilerplate.join("holssi/src/project"))
+    Entry::unpack(file, boilerplate.join("src/project"))
         .with_context(|| format!("엔트리 파일({file})을 열 수 없습니다."))?;
     log("Info", &format!("엔트리 파일({file})을 열었습니다."));
 
@@ -79,7 +79,7 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
     let product_name = match &cli.name {
         Some(name) => name.clone(),
         None => {
-            let project = read_json(&boilerplate.join("holssi/src/project/temp/project.json"))
+            let project = read_json(&boilerplate.join("src/project/temp/project.json"))
                 .context("엔트리 작품 정보를 읽을 수 없습니다.")?;
             project["name"].as_str().unwrap().to_string()
         }
@@ -95,7 +95,7 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
     log("", &format!("개발자 = {author}"));
     log("", &format!("버전 = {version}"));
 
-    let package_json_path = boilerplate.join("holssi/package.json");
+    let package_json_path = boilerplate.join("package.json");
     let mut package_json =
         read_json(&package_json_path).context("메타데이터 파일을 읽을 수 없습니다.")?;
 
@@ -118,8 +118,7 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
 pub(crate) fn install_deps(boilerplate: &Path) -> Result<()> {
     log("Info", "Electron 및 의존성 라이브러리를 설치합니다.");
 
-    command("npm install", &boilerplate.join("holssi"))
-        .context("의존성 라이브러리를 설치할 수 없습니다.")?;
+    command("npm install", &boilerplate).context("의존성 라이브러리를 설치할 수 없습니다.")?;
 
     Ok(())
 }
@@ -129,7 +128,7 @@ pub(crate) fn build(platform: &Platform, arch: &Arch, boilerplate: &Path) -> Res
 
     let cmd = format!("npm run dist -- {} {}", platform.as_arg(), arch.as_arg());
 
-    command(&cmd, &boilerplate.join("holssi")).context("앱을 빌드할 수 없습니다.")?;
+    command(&cmd, &boilerplate).context("앱을 빌드할 수 없습니다.")?;
 
     log("Info", "빌드에 성공했습니다.");
 
@@ -151,7 +150,7 @@ pub(crate) fn copy_build_result(
     // let enc = GzEncoder::new(tar_gz, Compression::default());
     // let mut tar = tar::Builder::new(enc);
     // tar.follow_symlinks(false);
-    // tar.append_dir_all("dist", boilerplate.join("holssi/dist"))?;
+    // tar.append_dir_all("dist", boilerplate.join("dist"))?;
 
     {
         match cli.platform {
@@ -168,11 +167,11 @@ pub(crate) fn copy_build_result(
                 );
                 command(
                     &format!("zip -ry \"{}\" \"{}\"", zip_file_name, app_file_name,),
-                    &boilerplate.join("holssi/dist").join(folder),
+                    &boilerplate.join("dist").join(folder),
                 )?;
                 fs::copy(
                     boilerplate
-                        .join("holssi/dist")
+                        .join("dist")
                         .join(folder)
                         .join(zip_file_name.clone()),
                     Path::new(out).join(zip_file_name),
@@ -186,7 +185,7 @@ pub(crate) fn copy_build_result(
                     cli.arch.as_file_name()
                 );
                 fs::copy(
-                    boilerplate.join("holssi/dist").join(&name),
+                    boilerplate.join("dist").join(&name),
                     Path::new(out).join(name),
                 )?;
             }
@@ -196,7 +195,7 @@ pub(crate) fn copy_build_result(
     // tar.finish()?;
 
     // fs_extra::dir::copy(
-    //     boilerplate.join("holssi/dist"),
+    //     boilerplate.join("dist"),
     //     out,
     //     &CopyOptions {
     //         overwrite: true,

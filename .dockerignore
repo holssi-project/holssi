@@ -1,0 +1,8 @@
+**/target
+**/in
+**/out
+**/node_modules
+**/dist
+/boilerplate/src/project
+.git
+.gitignore
