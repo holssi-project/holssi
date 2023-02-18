@@ -216,12 +216,10 @@ dependencies = [
  "clap",
  "colored",
  "dotent",
- "flate2",
  "fs_extra",
  "rand",
  "serde",
  "serde_json",
- "tar",
 ]
 
 [[package]]
