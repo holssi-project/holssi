@@ -11,13 +11,49 @@
 
 홀씨를 이용해서 엔트리 작품을 실행 파일로 내보내는 방법은 다음과 같습니다.
 
+## Docker 사용하기
+
+```sh
+docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out ghcr.io/jedeop/holssi:latest [OPTIONS]
+```
+```
+Usage: holssi [OPTIONS] --name-en <NAME_EN> --author <AUTHOR> <FILE>
+
+Arguments:
+  <FILE>  빌드할 엔트리 작품 파일
+
+Options:
+  -n, --name <NAME>                작품 이름. [default: 엔트리 작품의 이름]
+  -e, --name-en <NAME_EN>          작품 영문 이름. 로마자과 숫자, '-'로만 이루어져야 합니다
+  -a, --author <AUTHOR>            작품 제작자. 로마자과 숫자, '-'로만 이루어져야 합니다
+  -s, --set-version <VERSION>      버전 [default: 0.0.1]
+      --icon <ICON>                아이콘 이미지
+      --desc <DESC>                작품 설명 [default: "멋진 엔트리 작품"]
+  -o, --out <OUT>                  빌드 결과물을 저장할 디렉토리 [default: ./out]
+      --boilerplate <BOILERPLATE>  보일러플레이트 경로. --local 옵션이 지정되었을 때만 사용됩니다 [default: ../boilerplate]
+      --local                      --boilerplate로 지정된 경로에서 보일러플레이트를 복사해 사용합니다. 지정하지 않을 경우 깃허브 저장소에서 보일러플레이트를 다운로드 받습니다
+  -p, --platform <PLATFORM>        타겟 운영체제 [default: win] [possible values: mac, win]      
+  -r, --arch <ARCH>                타겟 아키텍쳐 [default: x64] [possible values: x64, arm64]    
+      --no-copy                    보일러플레이트를 복사하지 않고 주어진 경로에서 빌드를 수행합니다
+      --no-npm-install             보일러플레이트에서 의존성 라이브러리를 설치하지 않습니다      
+      --use-builder-zip            macOS 빌드 시 시스템의 zip 명령어 대신 electron-builder의 zip 기능을 사용합니다
+  -h, --help                       Print help
+  -V, --version                    Print version
+```
+
+### 예제
+
+```sh
+docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out ghcr.io/jedeop/holssi:latest --name-en EntryColorLoading --author jedeop
+```
+
 ## 로컬에서 직접 사용하기
 
 ### 준비물
 홀씨 CLI 도구를 실행하기 위해서는 다음의 프로그램이 컴퓨터에 미리 설치되어 있어야합니다.
 - [Node.js](https://nodejs.org/en/) (공식 홈페이지에서 설치해도 되고, `nvm` 등의 도구를 이용해서 설치할 수도 있습니다.)
 - [Git](https://git-scm.com/)
-- `zip` 명령어 (MacOS 타겟으로 실행할 때만 필요합니다.)
+- `zip` 명령어 (MacOS 타겟으로 실행할 때만 필요합니다. `--use-builder-zip` 옵션을 사용할 경우 필요하지 않습니다.)
 
 ### CLI 도구 준비하기
 
@@ -48,36 +84,12 @@ cd CLI도구가/있는/경로
 ```
 ```
 ./holssi --help
-Usage: holssi [OPTIONS] --name-en <NAME_EN> --author <AUTHOR> <FILE>
-
-Arguments:
-  <FILE>  빌드할 엔트리 작품 파일
-
-Options:
-  -n, --name <NAME>                작품 이름. [default: 엔트리 작품의 이름]
-  -e, --name-en <NAME_EN>          작품 영문 이름. 로마자과 숫자, '-'로만 이루어져야 합니다
-  -a, --author <AUTHOR>            작품 제작자. 로마자과 숫자, '-'로만 이루어져야 합니다
-  -s, --set-version <VERSION>      버전 [default: 0.0.1]
-      --icon <ICON>                아이콘 이미지
-      --desc <DESC>                작품 설명 [default: "멋진 엔트리 작품"]
-  -o, --out <OUT>                  빌드 결과물을 저장할 디렉토리 [default: ./out]
-      --boilerplate <BOILERPLATE>  보일러플레이트 경로. --local 옵션이 지정되었을 때만 사용됩니다 [default: ../boilerplate]
-      --local                      --boilerplate로 지정된 경로에서 보일러플레이트를 복사해 사용합니다. 지정하지 않을 경우 깃허브 저장소에서 보일러플레이트를 다운로드 받습니다
-  -p, --platform <PLATFORM>        타겟 운영체제 [default: win] [possible values: mac, win]
-  -r, --arch <ARCH>                타겟 아키텍쳐 [default: x64] [possible values: x64, arm64]
-  -h, --help                       Print help
-  -V, --version                    Print version
-
 ```
 ### 예제
 ```sh
-# project.ent이라는 이름의 파일을 실행 파일로 빌드하기
+# project.ent이라는 이름의 파일을 MacOS arm64을 위한 실행 파일로 빌드하기
 ./holssi project.ent --name-en EntryColorLoading --author jedeop --platform mac --arch arm64
 ```
-
-## Docker 사용하기
-
-준비중입니다.
 
 # 기여하기
 
