@@ -15,10 +15,8 @@ RUN mkdir /in && mkdir /out
 COPY boilerplate /boilerplate
 
 RUN cd /boilerplate && npm install
-#npm run dist -- --win --mac --x64 --arm64 && rm -rf /boilerplate/dist
+RUN cd /boilerplate && npm run dist -- --win --mac --x64 --arm64 && rm -rf /boilerplate/dist
 
 COPY --from=builder /app/target/release/holssi /usr/local/bin/
 
-# ENV USE_SYSTEM_7ZA=true
-
-ENTRYPOINT [ "holssi", "--out", "/out", "--boilerplate", "/boilerplate", "--local","--no-copy", "--no-npm-install", "/in/project.ent" ]
+ENTRYPOINT [ "holssi", "--out", "/out", "--boilerplate", "/boilerplate", "--local","--no-copy", "--no-npm-install", "--use-builder-zip", "/in/project.ent" ]

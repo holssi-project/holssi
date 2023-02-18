@@ -2,7 +2,7 @@
 **/in
 **/out
 **/node_modules
-**/dist
+/boilerplate/dist
 /boilerplate/src/project
 .git
 .gitignore

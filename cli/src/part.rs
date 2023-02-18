@@ -106,6 +106,10 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
     package_json["author"]["name"] = Value::String(author);
     package_json["build"]["appId"] = Value::String(app_id);
 
+    if cli.use_builder_zip {
+        package_json["build"]["mac"]["target"] = Value::String("zip".to_string());
+    }
+
     fs::write(
         &package_json_path,
         serde_json::to_string_pretty(&package_json)?,
@@ -155,27 +159,40 @@ pub(crate) fn copy_build_result(
     {
         match cli.platform {
             Platform::Mac => {
-                let folder = match cli.arch {
-                    Arch::X64 => "mac",
-                    Arch::Arm64 => "mac-arm64",
-                };
-                let app_file_name = format!("{}.app", package_info.product_name);
-                let zip_file_name = format!(
-                    "{}-{}.zip",
-                    package_info.product_name,
-                    cli.arch.as_file_name()
-                );
-                command(
-                    &format!("zip -ry \"{}\" \"{}\"", zip_file_name, app_file_name,),
-                    &boilerplate.join("dist").join(folder),
-                )?;
-                fs::copy(
-                    boilerplate
-                        .join("dist")
-                        .join(folder)
-                        .join(zip_file_name.clone()),
-                    Path::new(out).join(zip_file_name),
-                )?;
+                if cli.use_builder_zip {
+                    let name = format!(
+                        "{}-{}-{}-mac.zip",
+                        package_info.product_name,
+                        cli.set_version,
+                        cli.arch.as_file_name()
+                    );
+                    fs::copy(
+                        boilerplate.join("dist").join(&name),
+                        Path::new(out).join(name),
+                    )?;
+                } else {
+                    let folder = match cli.arch {
+                        Arch::X64 => "mac",
+                        Arch::Arm64 => "mac-arm64",
+                    };
+                    let app_file_name = format!("{}.app", package_info.product_name);
+                    let zip_file_name = format!(
+                        "{}-{}.zip",
+                        package_info.product_name,
+                        cli.arch.as_file_name()
+                    );
+                    command(
+                        &format!("zip -ry \"{}\" \"{}\"", zip_file_name, app_file_name,),
+                        &boilerplate.join("dist").join(folder),
+                    )?;
+                    fs::copy(
+                        boilerplate
+                            .join("dist")
+                            .join(folder)
+                            .join(zip_file_name.clone()),
+                        Path::new(out).join(zip_file_name),
+                    )?;
+                }
             }
             Platform::Win => {
                 let name = format!(

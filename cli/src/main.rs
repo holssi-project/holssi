@@ -56,6 +56,9 @@ struct Cli {
     /// 보일러플레이트에서 의존성 라이브러리를 설치하지 않습니다.
     #[arg(long, requires = "local")]
     no_npm_install: bool,
+    /// macOS 빌드 시 시스템의 zip 명령어 대신 electron-builder의 zip 기능을 사용합니다.
+    #[arg(long)]
+    use_builder_zip: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
