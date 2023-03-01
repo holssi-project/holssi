@@ -24,7 +24,7 @@ jobs:
           - dockerfile: Dockerfile
             tag: ""
           - dockerfile: website.Dockerfile
-            tag: website
+            tag: website-
       
     runs-on: ubuntu-latest
 
