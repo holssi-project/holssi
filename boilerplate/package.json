@@ -30,6 +30,6 @@
   "license": "",
   "devDependencies": {
     "electron": "^23.0.0",
-    "electron-builder": "^23.6.0"
+    "electron-builder": "^24.0.0-alpha.13"
   }
 }

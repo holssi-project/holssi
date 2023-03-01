@@ -16,6 +16,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      matrix:
+        dockerfile: ["Dockerfile", "website.Dockerfile"]
+        include:
+          - dockerfile: Dockerfile
+            tag: ""
+          - dockerfile: website.Dockerfile
+            tag: website
       
     runs-on: ubuntu-latest
 
@@ -43,11 +52,14 @@ jobs:
           type=semver,pattern={{version}}
           type=ref,event=branch
           type=sha
+        flavor: |
+          prefix=${{ matrix.tag }},onlatest=true
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
         context: .
+        file: ${{ matrix.dockerfile }}
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

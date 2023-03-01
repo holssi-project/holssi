@@ -1,13 +1,7 @@
-use std::path::Path;
-
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
 
-use part::{
-    build, check_options, cleanup, clone_boilerplate, copy_boilerplate, copy_build_result,
-    install_deps, set_package_info, unpack_ent,
-};
-use util::{create_temp_dir, log};
+use part::process;
 
 mod part;
 mod util;
@@ -59,6 +53,16 @@ struct Cli {
     /// macOS 빌드 시 시스템의 zip 명령어 대신 electron-builder의 zip 기능을 사용합니다.
     #[arg(long)]
     use_builder_zip: bool,
+
+    #[cfg(feature = "website")]
+    #[arg(long)]
+    nonce: String,
+    #[cfg(feature = "website")]
+    #[arg(long)]
+    project_id: String,
+    #[cfg(feature = "website")]
+    #[arg(long)]
+    api_hostname: String,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -97,44 +101,26 @@ impl Arch {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    check_options(&cli)?;
+    let result = process(&cli);
 
-    log("Info", &format!("{}을 빌드합니다.", cli.file));
-    log("", "");
-
-    let boilerplate = if cli.no_copy {
-        Path::new(&cli.boilerplate).to_path_buf()
-    } else {
-        let boilerplate = create_temp_dir()?;
-
-        if cli.local {
-            copy_boilerplate(&cli.boilerplate, &boilerplate)?;
-        } else {
-            clone_boilerplate(&boilerplate)?;
+    #[cfg(feature = "website")]
+    {
+        match &result {
+            Ok(_) => (),
+            Err(err) => {
+                let client = reqwest::blocking::Client::new();
+                client
+                    .post(format!(
+                        "{}/project/{}/failed?nonce={}",
+                        cli.api_hostname, cli.project_id, cli.nonce
+                    ))
+                    .body(err.to_string())
+                    .send()?;
+            }
         }
-
-        boilerplate.join("holssi")
-    };
-
-    unpack_ent(&cli.file, &boilerplate)?;
-
-    let package_info = set_package_info(&cli, &boilerplate)?;
-
-    if !cli.no_npm_install {
-        install_deps(&boilerplate)?;
     }
 
-    build(&cli.platform, &cli.arch, &boilerplate)?;
-
-    copy_build_result(&cli, &boilerplate, &package_info)?;
-
-    if !cli.no_copy {
-        cleanup(&boilerplate)?;
-    }
-
-    log("", "");
-
-    log("Success", "모든 동작을 성공적으로 수행했습니다.");
+    result?;
 
     Ok(())
 }

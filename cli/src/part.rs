@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::{bail, Context, Result};
 use dotent::entry::Entry;
@@ -8,9 +11,70 @@ use fs_extra::dir::CopyOptions;
 use serde_json::Value;
 
 use crate::{
-    util::{command, log, read_json},
+    util::{command, create_temp_dir, log, read_json},
     Arch, Cli, Platform,
 };
+
+pub(crate) fn process(cli: &Cli) -> Result<()> {
+    check_options(cli)?;
+
+    log("Info", &format!("{}을 빌드합니다.", cli.file));
+    log("", "");
+
+    let boilerplate = if cli.no_copy {
+        Path::new(&cli.boilerplate).to_path_buf()
+    } else {
+        let boilerplate = create_temp_dir()?;
+
+        if cli.local {
+            copy_boilerplate(&cli.boilerplate, &boilerplate)?;
+        } else {
+            clone_boilerplate(&boilerplate)?;
+        }
+
+        boilerplate.join("holssi")
+    };
+
+    #[cfg(feature = "website")]
+    {
+        let file = download_ent(&cli.file)?;
+        unpack_ent(
+            file.to_str().context("download path to str failed")?,
+            &boilerplate,
+        )?;
+    }
+    #[cfg(not(feature = "website"))]
+    {
+        unpack_ent(&cli.file, &boilerplate)?;
+    }
+
+    let package_info = set_package_info(cli, &boilerplate)?;
+
+    if !cli.no_npm_install {
+        install_deps(&boilerplate)?;
+    }
+
+    build(&cli.platform, &cli.arch, &boilerplate)?;
+
+    #[cfg(feature = "website")]
+    {
+        upload_build_result(cli, &boilerplate, &package_info)?;
+    }
+    #[cfg(not(feature = "website"))]
+    {
+        copy_build_result(cli, &boilerplate, &package_info)?;
+    }
+
+    if !cli.no_copy {
+        cleanup(&boilerplate)?;
+    }
+
+    log("", "");
+
+    log("Success", "모든 동작을 성공적으로 수행했습니다.");
+
+    Ok(())
+}
 
 pub(crate) fn check_options(cli: &Cli) -> Result<()> {
     if !cli
@@ -59,6 +123,18 @@ pub(crate) fn copy_boilerplate(boilerplate: &str, path: &Path) -> Result<()> {
     )?;
 
     Ok(())
+}
+
+#[cfg(feature = "website")]
+fn download_ent(url: &str) -> Result<PathBuf> {
+    use std::{fs::File, io::copy};
+
+    let mut res = reqwest::blocking::get(url)?;
+    let path = create_temp_dir()?.join("project.ent");
+    let mut file = File::create(&path)?;
+    copy(&mut res, &mut file)?;
+
+    Ok(path)
 }
 
 pub(crate) fn unpack_ent(file: &str, boilerplate: &Path) -> Result<()> {
@@ -122,7 +198,7 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
 pub(crate) fn install_deps(boilerplate: &Path) -> Result<()> {
     log("Info", "Electron 및 의존성 라이브러리를 설치합니다.");
 
-    command("npm install", &boilerplate).context("의존성 라이브러리를 설치할 수 없습니다.")?;
+    command("npm install", boilerplate).context("의존성 라이브러리를 설치할 수 없습니다.")?;
 
     Ok(())
 }
@@ -132,13 +208,35 @@ pub(crate) fn build(platform: &Platform, arch: &Arch, boilerplate: &Path) -> Res
 
     let cmd = format!("npm run dist -- {} {}", platform.as_arg(), arch.as_arg());
 
-    command(&cmd, &boilerplate).context("앱을 빌드할 수 없습니다.")?;
+    command(&cmd, boilerplate).context("앱을 빌드할 수 없습니다.")?;
 
     log("Info", "빌드에 성공했습니다.");
 
     Ok(())
 }
 
+fn get_build_result_path(
+    name: &str,
+    version: &str,
+    arch: &Arch,
+    platform: &Platform,
+    boilerplate: &Path,
+) -> (PathBuf, String) {
+    let arch_str = arch.as_file_name();
+    let platform_str = match platform {
+        Platform::Mac => "mac",
+        Platform::Win => "win",
+    };
+    let ext = match platform {
+        Platform::Mac => "zip",
+        Platform::Win => "exe",
+    };
+    let file_name = format!("{name}-{version}-{arch_str}-{platform_str}.{ext}");
+    let path = boilerplate.join("dist").join(&file_name);
+    (path, file_name)
+}
+
+#[cfg(not(feature = "website"))]
 pub(crate) fn copy_build_result(
     cli: &Cli,
     boilerplate: &Path,
@@ -150,79 +248,65 @@ pub(crate) fn copy_build_result(
 
     fs::create_dir_all(out).with_context(|| format!("{out} 디렉토리를 생성할 수 없습니다."))?;
 
-    // let tar_gz = File::create(Path::new(out).join("archive.tar.gz"))?;
-    // let enc = GzEncoder::new(tar_gz, Compression::default());
-    // let mut tar = tar::Builder::new(enc);
-    // tar.follow_symlinks(false);
-    // tar.append_dir_all("dist", boilerplate.join("dist"))?;
-
     {
-        match cli.platform {
-            Platform::Mac => {
-                if cli.use_builder_zip {
-                    let name = format!(
-                        "{}-{}-{}-mac.zip",
-                        package_info.product_name,
-                        cli.set_version,
-                        cli.arch.as_file_name()
-                    );
-                    fs::copy(
-                        boilerplate.join("dist").join(&name),
-                        Path::new(out).join(name),
-                    )?;
-                } else {
-                    let folder = match cli.arch {
-                        Arch::X64 => "mac",
-                        Arch::Arm64 => "mac-arm64",
-                    };
-                    let app_file_name = format!("{}.app", package_info.product_name);
-                    let zip_file_name = format!(
-                        "{}-{}.zip",
-                        package_info.product_name,
-                        cli.arch.as_file_name()
-                    );
-                    command(
-                        &format!("zip -ry \"{}\" \"{}\"", zip_file_name, app_file_name,),
-                        &boilerplate.join("dist").join(folder),
-                    )?;
-                    fs::copy(
-                        boilerplate
-                            .join("dist")
-                            .join(folder)
-                            .join(zip_file_name.clone()),
-                        Path::new(out).join(zip_file_name),
-                    )?;
-                }
+        match (cli.platform, cli.use_builder_zip) {
+            (Platform::Mac, true) | (Platform::Win, _) => {
+                let (from_path, file_name) = get_build_result_path(
+                    &package_info.product_name,
+                    &cli.set_version,
+                    &cli.arch,
+                    &cli.platform,
+                    boilerplate,
+                );
+                fs::copy(from_path, Path::new(out).join(file_name))?;
             }
-            Platform::Win => {
-                let name = format!(
-                    "{}-{}-{}-win.exe",
+            (Platform::Mac, false) => {
+                let folder = match cli.arch {
+                    Arch::X64 => "mac",
+                    Arch::Arm64 => "mac-arm64",
+                };
+                let app_file_name = format!("{}.app", package_info.product_name);
+                let zip_file_name = format!(
+                    "{}-{}.zip",
                     package_info.product_name,
-                    cli.set_version,
                     cli.arch.as_file_name()
                 );
+                command(
+                    &format!("zip -ry \"{}\" \"{}\"", zip_file_name, app_file_name,),
+                    &boilerplate.join("dist").join(folder),
+                )?;
                 fs::copy(
-                    boilerplate.join("dist").join(&name),
-                    Path::new(out).join(name),
+                    boilerplate
+                        .join("dist")
+                        .join(folder)
+                        .join(zip_file_name.clone()),
+                    Path::new(out).join(zip_file_name),
                 )?;
             }
-        };
+        }
     }
 
-    // tar.finish()?;
+    Ok(())
+}
 
-    // fs_extra::dir::copy(
-    //     boilerplate.join("dist"),
-    //     out,
-    //     &CopyOptions {
-    //         overwrite: true,
-    //         content_only: true,
-    //         depth: 1,
-    //         ..Default::default()
-    //     },
-    // )
-    // .with_context(|| format!("빌드 결과물을 {out}에 복사할 수 없습니다."))?;
+#[cfg(feature = "website")]
+fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo) -> Result<()> {
+    log("Info", "빌드 결과물을 서버로 업로드합니다.");
 
+    let (path, _) = get_build_result_path(
+        &package_info.product_name,
+        &cli.set_version,
+        &cli.arch,
+        &cli.platform,
+        boilerplate,
+    );
+    let client = reqwest::blocking::Client::new();
+    let form = reqwest::blocking::multipart::Form::new().file("file", path)?;
+    let url = format!(
+        "{}/project/{}/upload_exe?nonce={}",
+        cli.api_hostname, cli.project_id, cli.nonce
+    );
+    client.post(url).multipart(form).send()?;
     Ok(())
 }
 
