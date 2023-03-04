@@ -301,13 +301,21 @@ fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo
         boilerplate,
     );
     let client = reqwest::blocking::Client::new();
-    let url = format!(
+    let get_presigned_url = format!(
         "{}/project/{}/exe_signed?nonce={}&file_name={}",
         cli.api_hostname, cli.project_id, cli.nonce, file_name,
     );
-    let presigned = reqwest::blocking::get(url)?.text()?;
+    let presigned = reqwest::blocking::get(get_presigned_url)?.text()?;
+
     let form = reqwest::blocking::multipart::Form::new().file("file", path)?;
     client.put(presigned).multipart(form).send()?;
+
+    let get_success_url = format!(
+        "{}/project/{}/success?nonce={}",
+        cli.api_hostname, cli.project_id, cli.nonce
+    );
+    client.post(get_success_url).send()?;
+
     Ok(())
 }
 
