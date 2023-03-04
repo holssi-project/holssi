@@ -293,7 +293,7 @@ pub(crate) fn copy_build_result(
 fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo) -> Result<()> {
     log("Info", "빌드 결과물을 서버로 업로드합니다.");
 
-    let (path, _) = get_build_result_path(
+    let (path, file_name) = get_build_result_path(
         &package_info.product_name,
         &cli.set_version,
         &cli.arch,
@@ -301,12 +301,13 @@ fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo
         boilerplate,
     );
     let client = reqwest::blocking::Client::new();
-    let form = reqwest::blocking::multipart::Form::new().file("file", path)?;
     let url = format!(
-        "{}/project/{}/upload_exe?nonce={}",
-        cli.api_hostname, cli.project_id, cli.nonce
+        "{}/project/{}/exe_signed?nonce={}&file_name={}",
+        cli.api_hostname, cli.project_id, cli.nonce, file_name,
     );
-    client.post(url).multipart(form).send()?;
+    let presigned = reqwest::blocking::get(url)?.text()?;
+    let form = reqwest::blocking::multipart::Form::new().file("file", path)?;
+    client.put(presigned).multipart(form).send()?;
     Ok(())
 }
 

@@ -105,6 +105,8 @@ fn main() -> Result<()> {
 
     #[cfg(feature = "website")]
     {
+        use std::{thread, time::Duration};
+
         match &result {
             Ok(_) => (),
             Err(err) => {
@@ -118,6 +120,8 @@ fn main() -> Result<()> {
                     .send()?;
             }
         }
+
+        thread::sleep(Duration::from_secs(1));
     }
 
     result?;
