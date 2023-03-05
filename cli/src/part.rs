@@ -309,7 +309,8 @@ fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo
     );
     let presigned = reqwest::blocking::get(get_presigned_url)?.text()?;
 
-    let file = File::open(path)?;
+    let file =
+        File::open(&path).with_context(|| format!("cannot open executable (path = {path:?})"))?;
     client.put(presigned).body(file).send()?;
 
     let get_success_url = format!(
