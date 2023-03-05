@@ -215,6 +215,8 @@ pub(crate) fn build(platform: &Platform, arch: &Arch, boilerplate: &Path) -> Res
     Ok(())
 }
 
+const FILE_NOT_ALLOWED: [char; 9] = ['<', '>', ':', '"', '/', '\\', '|', '?', '*'];
+
 fn get_build_result_path(
     name: &str,
     version: &str,
@@ -222,6 +224,11 @@ fn get_build_result_path(
     platform: &Platform,
     boilerplate: &Path,
 ) -> (PathBuf, String) {
+    let name_filter = name
+        .chars()
+        .filter(|c| !FILE_NOT_ALLOWED.contains(&c))
+        .collect::<String>();
+
     let arch_str = arch.as_file_name();
     let platform_str = match platform {
         Platform::Mac => "mac",
@@ -231,7 +238,7 @@ fn get_build_result_path(
         Platform::Mac => "zip",
         Platform::Win => "exe",
     };
-    let file_name = format!("{name}-{version}-{arch_str}-{platform_str}.{ext}");
+    let file_name = format!("{name_filter}-{version}-{arch_str}-{platform_str}.{ext}");
     let path = boilerplate.join("dist").join(&file_name);
     (path, file_name)
 }
