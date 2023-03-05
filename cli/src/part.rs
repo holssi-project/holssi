@@ -291,6 +291,8 @@ pub(crate) fn copy_build_result(
 
 #[cfg(feature = "website")]
 fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo) -> Result<()> {
+    use std::fs::File;
+
     log("Info", "빌드 결과물을 서버로 업로드합니다.");
 
     let (path, file_name) = get_build_result_path(
@@ -307,8 +309,8 @@ fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo
     );
     let presigned = reqwest::blocking::get(get_presigned_url)?.text()?;
 
-    let form = reqwest::blocking::multipart::Form::new().file("file", path)?;
-    client.put(presigned).multipart(form).send()?;
+    let file = File::open(path)?;
+    client.put(presigned).body(file).send()?;
 
     let get_success_url = format!(
         "{}/project/{}/success?nonce={}",
