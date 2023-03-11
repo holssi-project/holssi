@@ -70,3 +70,11 @@ pub(crate) fn read_json(path: &Path) -> Result<Value> {
     })?;
     Ok(json)
 }
+
+const FILE_NOT_ALLOWED: [char; 9] = ['<', '>', ':', '"', '/', '\\', '|', '?', '*'];
+
+pub(crate) fn filter_file_name(name: &str) -> String {
+    name.chars()
+        .filter(|c| !FILE_NOT_ALLOWED.contains(c))
+        .collect::<String>()
+}

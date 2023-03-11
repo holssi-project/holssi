@@ -11,7 +11,7 @@ use fs_extra::dir::CopyOptions;
 use serde_json::Value;
 
 use crate::{
-    util::{command, create_temp_dir, log, read_json},
+    util::{command, create_temp_dir, filter_file_name, log, read_json},
     Arch, Cli, Platform,
 };
 
@@ -152,14 +152,14 @@ pub(crate) struct PackageInfo {
 pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageInfo> {
     let app_id = format!("dev.jedeop.holssi.{}-{}", cli.author, cli.name_en);
     let name = cli.name_en.clone();
-    let product_name = match &cli.name {
+    let product_name = filter_file_name(&match &cli.name {
         Some(name) => name.clone(),
         None => {
             let project = read_json(&boilerplate.join("src/project/temp/project.json"))
                 .context("엔트리 작품 정보를 읽을 수 없습니다.")?;
             project["name"].as_str().unwrap().to_string()
         }
-    };
+    });
     let desc = cli.desc.clone();
     let author = cli.author.clone();
     let version = cli.set_version.clone();
@@ -215,8 +215,6 @@ pub(crate) fn build(platform: &Platform, arch: &Arch, boilerplate: &Path) -> Res
     Ok(())
 }
 
-const FILE_NOT_ALLOWED: [char; 9] = ['<', '>', ':', '"', '/', '\\', '|', '?', '*'];
-
 fn get_build_result_path(
     name: &str,
     version: &str,
@@ -224,10 +222,7 @@ fn get_build_result_path(
     platform: &Platform,
     boilerplate: &Path,
 ) -> (PathBuf, String) {
-    let name_filter = name
-        .chars()
-        .filter(|c| !FILE_NOT_ALLOWED.contains(&c))
-        .collect::<String>();
+    let name_filter = filter_file_name(name);
 
     let arch_str = arch.as_file_name();
     let platform_str = match platform {
