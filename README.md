@@ -6,6 +6,7 @@
 홀씨는 [entryjs](https://github.com/entrylabs/entryjs)와 [Electron](https://www.electronjs.org/)을 이용해 엔트리 작품을 실행 파일로 내보내고 실행시킵니다.
 
 추가로 muno9748님의 [BetterEntryScreen](https://github.com/muno9748/BetterEntryScreen)이 적용되어 있어 더 좋은 해상도로 작품을 실행할 수 있습니다.
+(기본적으로는 적용되지 않으며, 옵션을 선택했을 때만 적용됩니다.)
 
 # 사용하기
 
@@ -34,16 +35,17 @@ Options:
   -e, --name-en <NAME_EN>          작품 영문 이름. 로마자과 숫자, '-'로만 이루어져야 합니다
   -a, --author <AUTHOR>            작품 제작자. 로마자과 숫자, '-'로만 이루어져야 합니다
   -s, --set-version <VERSION>      버전 [default: 0.0.1]
-      --icon <ICON>                아이콘 이미지
       --desc <DESC>                작품 설명 [default: "멋진 엔트리 작품"]
   -o, --out <OUT>                  빌드 결과물을 저장할 디렉토리 [default: ./out]
       --boilerplate <BOILERPLATE>  보일러플레이트 경로. --local 옵션이 지정되었을 때만 사용됩니다 [default: ../boilerplate]
       --local                      --boilerplate로 지정된 경로에서 보일러플레이트를 복사해 사용합니다. 지정하지 않을 경우 깃허브 저장소에서 보일러플레이트를 다운로드 받습니다
-  -p, --platform <PLATFORM>        타겟 운영체제 [default: win] [possible values: mac, win]      
-  -r, --arch <ARCH>                타겟 아키텍쳐 [default: x64] [possible values: x64, arm64]    
+  -p, --platform <PLATFORM>        타겟 운영체제 [default: win] [possible values: mac, win]
+  -r, --arch <ARCH>                타겟 아키텍쳐 [default: x64] [possible values: x64, arm64]
       --no-copy                    보일러플레이트를 복사하지 않고 주어진 경로에서 빌드를 수행합니다
-      --no-npm-install             보일러플레이트에서 의존성 라이브러리를 설치하지 않습니다      
+      --no-npm-install             보일러플레이트에서 의존성 라이브러리를 설치하지 않습니다
       --use-builder-zip            macOS 빌드 시 시스템의 zip 명령어 대신 electron-builder의 zip 기능을 사용합니다
+      --use-bes                    BetterEntryScreen을 적용합니다
+      --use-boost-mode             엔트리 부스트 모드를 적용합니다
   -h, --help                       Print help
   -V, --version                    Print version
 ```
@@ -96,6 +98,8 @@ cd CLI도구가/있는/경로
 ```sh
 # project.ent이라는 이름의 파일을 MacOS arm64을 위한 실행 파일로 빌드하기
 ./holssi project.ent --name-en EntryColorLoading --author jedeop --platform mac --arch arm64
+# + BetterEntryScreen, 부스트 모드 활성화
+./holssi project.ent --name-en EntryColorLoading --author jedeop --platform mac --arch arm64 --use-bes --use-boost-mode
 ```
 
 # 기여하기
