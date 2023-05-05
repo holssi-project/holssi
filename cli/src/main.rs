@@ -53,6 +53,12 @@ struct Cli {
     /// macOS 빌드 시 시스템의 zip 명령어 대신 electron-builder의 zip 기능을 사용합니다.
     #[arg(long)]
     use_builder_zip: bool,
+    /// BetterEntryScreen을 적용합니다.
+    #[arg(long)]
+    use_bes: bool,
+    /// 엔트리 부스트 모드를 적용합니다.
+    #[arg(long)]
+    use_boost_mode: bool,
 
     #[cfg(feature = "website")]
     #[arg(long)]

@@ -44,6 +44,9 @@
       dataTableDisable: true,
       expansionDisable: true,
       aiUtilizeDisable: true,
+      // {{#if BOOST_MODE}}
+      useWebGL: true,
+      // {{#endif BOOST_MODE}}
     };
     Entry.init(document.getElementById('workspace'), initOption);
 
@@ -72,7 +75,9 @@
         }
         Entry.loadProject(project);
         Entry.addEventListener("loadComplete", () => {
+          // {{#if BES}}
           new EntryScreenFixer().fix();
+          // {{#endif BES}}
           Entry.engine.toggleRun();
         })
       })

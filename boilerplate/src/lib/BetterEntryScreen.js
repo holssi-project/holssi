@@ -1,6 +1,7 @@
 /*
- * BetterEntryScreen
+ * BetterEntryScreen by muno9748
  * https://github.com/muno9748/BetterEntryScreen
+ * MIT LICENSE
  */
 
 /*
@@ -131,7 +132,7 @@ window.EntryScreenFixerWebGL = class EntryScreenFixerWebGL {
                     obj.entity.setImage(pic)
 
                     const id = pic.filename
-                    const src = `https://playentry.org/uploads/${id.slice(0, 2)}/${id.slice(2, 4)}/image/${id}.svg`
+                    const src = `./project/temp/${id.slice(0, 2)}/${id.slice(2, 4)}/image/${id}.svg`
                     const texture = obj.entity.object.texture.constructor.from(src)
 
                     const t = obj.entity.object.texture
@@ -158,7 +159,7 @@ window.EntryScreenFixerWebGL = class EntryScreenFixerWebGL {
                     obj.entity.setImage(pic)
 
                     const id = pic.filename
-                    const src = `https://playentry.org/uploads/${id.slice(0, 2)}/${id.slice(2, 4)}/image/${id}.png`
+                    const src = `./project/temp/${id.slice(0, 2)}/${id.slice(2, 4)}/image/${id}.png`
                     const texture = obj.entity.object.texture.constructor.from(src)
 
                     const t = obj.entity.object.texture
@@ -444,7 +445,7 @@ window.EntryScreenFixer = class EntryScreenFixer {
                     const id = pic.filename
                     const image = new Image()
 
-                    image.src = `https://playentry.org/uploads/${id.slice(0, 2)}/${id.slice(2, 4)}/image/${id}.svg`
+                    image.src = `./project/temp/${id.slice(0, 2)}/${id.slice(2, 4)}/image/${id}.svg`
 
                     svgImages.set(idx, [image, null])
 

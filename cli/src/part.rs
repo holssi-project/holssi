@@ -50,6 +50,8 @@ pub(crate) fn process(cli: &Cli) -> Result<()> {
 
     let package_info = set_package_info(cli, &boilerplate)?;
 
+    compile_indexhtml(cli, &boilerplate)?;
+
     if !cli.no_npm_install {
         install_deps(&boilerplate)?;
     }
@@ -193,6 +195,38 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
     .context("메타데이터 파일을 작성할 수 없습니다.")?;
 
     Ok(PackageInfo { product_name })
+}
+
+pub(crate) fn compile_indexhtml(cli: &Cli, boilerplate: &Path) -> Result<()> {
+    log("Info", "index.html에 옵션을 적용합니다.");
+
+    let indexhtml_path = boilerplate.join("src/index.html");
+
+    let text =
+        fs::read_to_string(&indexhtml_path).context("index.html 파일을 읽을 수 없습니다.")?;
+    let lines = text.lines();
+
+    let mut result = Vec::new();
+    let mut do_skip = false;
+
+    for line in lines {
+        if line.contains("{{#if BES}}") {
+            do_skip = !cli.use_bes;
+        } else if line.contains("{{#endif BES}}") {
+            do_skip = false;
+        } else if line.contains("{{#if BOOST_MODE}}") {
+            do_skip = !cli.use_boost_mode;
+        } else if line.contains("{{#endif BOOST_MODE}}") {
+            do_skip = false;
+        } else if !do_skip {
+            result.push(line);
+        }
+    }
+
+    fs::write(&indexhtml_path, result.join("\n"))
+        .context("index.html 파일을 작성할 수 없습니다.")?;
+
+    Ok(())
 }
 
 pub(crate) fn install_deps(boilerplate: &Path) -> Result<()> {
