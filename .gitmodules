@@ -5,4 +5,4 @@
 [submodule "boilerplate/src/lib/entry-js"]
 	path = boilerplate/src/lib/entry-js
 	url = https://github.com/entrylabs/entryjs
-	branch = dist/offline_v2.0.54
+	branch = dist/offline_v2.1.3
