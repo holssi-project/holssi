@@ -155,11 +155,11 @@ pub(crate) fn set_package_info(cli: &Cli, boilerplate: &Path) -> Result<PackageI
     let app_id = format!("dev.jedeop.holssi.{}-{}", cli.author, cli.name_en);
     let name = cli.name_en.clone();
     let product_name = filter_file_name(&match &cli.name {
-        Some(name) => name.clone(),
+        Some(name) => name.trim().to_string(),
         None => {
             let project = read_json(&boilerplate.join("src/project/temp/project.json"))
                 .context("엔트리 작품 정보를 읽을 수 없습니다.")?;
-            project["name"].as_str().unwrap().to_string()
+            project["name"].as_str().unwrap().trim().to_string()
         }
     });
     let desc = cli.desc.clone();
