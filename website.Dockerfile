@@ -17,4 +17,4 @@ RUN cd /boilerplate && npm run dist -- --win --mac --x64 --arm64 && rm -rf /boil
 
 COPY --from=builder /app/target/release/holssi /usr/local/bin/
 
-ENTRYPOINT [ "holssi", "--boilerplate", "/boilerplate", "--local", "--no-copy", "--no-npm-install", "--use-builder-zip" ]
+ENTRYPOINT [ "holssi", "--boilerplate", "/boilerplate", "--local", "--no-copy", "--no-npm-install" ]
