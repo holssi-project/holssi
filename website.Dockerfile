@@ -15,6 +15,8 @@ COPY boilerplate /boilerplate
 RUN cd /boilerplate && npm install
 RUN cd /boilerplate && npm run dist -- --win --mac --x64 --arm64 && rm -rf /boilerplate/dist
 
+RUN apt-get update && apt-get install -y zip && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /app/target/release/holssi /usr/local/bin/
 
 ENTRYPOINT [ "holssi", "--boilerplate", "/boilerplate", "--local", "--no-copy", "--no-npm-install" ]
