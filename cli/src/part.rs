@@ -240,7 +240,7 @@ pub(crate) fn install_deps(boilerplate: &Path) -> Result<()> {
 pub(crate) fn build(platform: &Platform, arch: &Arch, boilerplate: &Path) -> Result<()> {
     log("Info", "앱을 빌드합니다.");
 
-    let cmd = format!("npm run dist -- {} {}", platform.as_arg(), arch.as_arg());
+    let cmd = format!("npm run dist -- {} {}", platform.arg(), arch.arg());
 
     command(&cmd, boilerplate).context("앱을 빌드할 수 없습니다.")?;
 
@@ -249,27 +249,42 @@ pub(crate) fn build(platform: &Platform, arch: &Arch, boilerplate: &Path) -> Res
     Ok(())
 }
 
-fn get_build_result_path(
-    name: &str,
-    version: &str,
-    arch: &Arch,
-    platform: &Platform,
-    boilerplate: &Path,
-) -> (PathBuf, String) {
+fn get_build_result_path(name: &str, options: &Cli, boilerplate: &Path) -> (PathBuf, String) {
     let name_filter = filter_file_name(name);
 
-    let arch_str = arch.as_file_name();
-    let platform_str = match platform {
-        Platform::Mac => "mac",
-        Platform::Win => "win",
-    };
-    let ext = match platform {
-        Platform::Mac => "zip",
-        Platform::Win => "exe",
-    };
+    let version = &options.set_version;
+    let arch_str = options.arch.file_name();
+    let platform_str = options.platform.name();
+    let ext = options.platform.ext();
     let file_name = format!("{name_filter}-{version}-{arch_str}-{platform_str}.{ext}");
     let path = boilerplate.join("dist").join(&file_name);
     (path, file_name)
+}
+
+fn zip_build_result(
+    cli: &Cli,
+    package_info: &PackageInfo,
+    boilerplate: &Path,
+    file_name: &str,
+) -> Result<()> {
+    let folder = cli.arch.folder_name();
+    let app_file_name = format!("{}.app", package_info.product_name);
+
+    log(
+        "Info",
+        &format!("빌드 결과물({})을 압축합니다.", app_file_name),
+    );
+
+    command(
+        &format!(
+            "zip -ry \"{}\" \"{}\"",
+            boilerplate.join("dist").join(file_name).display(),
+            app_file_name
+        ),
+        &boilerplate.join("dist").join(folder),
+    )?;
+
+    Ok(())
 }
 
 #[cfg(not(feature = "website"))]
@@ -285,41 +300,20 @@ pub(crate) fn copy_build_result(
     fs::create_dir_all(out).with_context(|| format!("{out} 디렉토리를 생성할 수 없습니다."))?;
 
     {
-        match (cli.platform, cli.use_builder_zip) {
-            (Platform::Mac, true) | (Platform::Win, _) => {
-                let (from_path, file_name) = get_build_result_path(
-                    &package_info.product_name,
-                    &cli.set_version,
-                    &cli.arch,
-                    &cli.platform,
-                    boilerplate,
-                );
-                fs::copy(from_path, Path::new(out).join(file_name))?;
-            }
-            (Platform::Mac, false) => {
-                let folder = match cli.arch {
-                    Arch::X64 => "mac",
-                    Arch::Arm64 => "mac-arm64",
-                };
-                let app_file_name = format!("{}.app", package_info.product_name);
-                let zip_file_name = format!(
-                    "{}-{}.zip",
-                    package_info.product_name,
-                    cli.arch.as_file_name()
-                );
-                command(
-                    &format!("zip -ry \"{}\" \"{}\"", zip_file_name, app_file_name,),
-                    &boilerplate.join("dist").join(folder),
-                )?;
-                fs::copy(
-                    boilerplate
-                        .join("dist")
-                        .join(folder)
-                        .join(zip_file_name.clone()),
-                    Path::new(out).join(zip_file_name),
-                )?;
-            }
+        let (from_path, file_name) =
+            get_build_result_path(&package_info.product_name, cli, boilerplate);
+        let out_file_path = Path::new(out).join(&file_name);
+
+        if let (Platform::Mac, false) = (cli.platform, cli.use_builder_zip) {
+            zip_build_result(cli, package_info, boilerplate, &file_name)?;
         }
+
+        fs::copy(&from_path, &out_file_path).with_context(|| {
+            format!(
+                "{:?}에서 {:?}로 빌드 결과물을 복사할 수 없습니다.",
+                from_path, out_file_path
+            )
+        })?;
     }
 
     Ok(())
@@ -331,13 +325,12 @@ fn upload_build_result(cli: &Cli, boilerplate: &Path, package_info: &PackageInfo
 
     log("Info", "빌드 결과물을 서버로 업로드합니다.");
 
-    let (path, file_name) = get_build_result_path(
-        &package_info.product_name,
-        &cli.set_version,
-        &cli.arch,
-        &cli.platform,
-        boilerplate,
-    );
+    let (path, file_name) = get_build_result_path(&package_info.product_name, cli, boilerplate);
+
+    if let (Platform::Mac, false) = (cli.platform, cli.use_builder_zip) {
+        zip_build_result(cli, package_info, boilerplate, &file_name)?;
+    }
+
     let client = reqwest::blocking::Client::new();
     let get_presigned_url = format!(
         "{}/project/{}/exe_signed?nonce={}&file_name={}",

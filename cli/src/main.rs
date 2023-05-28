@@ -77,10 +77,22 @@ enum Platform {
     Win,
 }
 impl Platform {
-    fn as_arg(&self) -> &str {
+    fn arg(&self) -> &str {
         match self {
             Platform::Mac => "--mac",
             Platform::Win => "--win",
+        }
+    }
+    fn name(&self) -> &str {
+        match self {
+            Platform::Mac => "mac",
+            Platform::Win => "win",
+        }
+    }
+    fn ext(&self) -> &str {
+        match self {
+            Platform::Mac => "zip",
+            Platform::Win => "exe",
         }
     }
 }
@@ -90,16 +102,22 @@ enum Arch {
     Arm64,
 }
 impl Arch {
-    fn as_arg(&self) -> &str {
+    fn arg(&self) -> &str {
         match self {
             Arch::X64 => "--x64",
             Arch::Arm64 => "--arm64",
         }
     }
-    fn as_file_name(&self) -> &str {
+    fn file_name(&self) -> &str {
         match self {
             Arch::X64 => "x64",
             Arch::Arm64 => "arm64",
+        }
+    }
+    fn folder_name(&self) -> &str {
+        match self {
+            Arch::X64 => "mac",
+            Arch::Arm64 => "mac-arm64",
         }
     }
 }
