@@ -7,7 +7,7 @@ on:
     types: [created]
 
 jobs:
-  release:
+  build-artifacts:
     name: release ${{ matrix.target }}
     runs-on: ubuntu-latest
     
@@ -30,3 +30,22 @@ jobs:
         with:
           RUSTTARGET: ${{ matrix.target }}
           SRC_DIR: ./cli
+
+  boilerplate:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Zip & Upload
+        run: |
+          tar -zcvf boilerplate.tar.gz ./boilerplate
+          gh release upload $GITHUB_REF boilerplate.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
