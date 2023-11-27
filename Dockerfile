@@ -1,4 +1,4 @@
-FROM rust:1.67-buster as builder
+FROM rust:1.74-buster as builder
 
 RUN cargo new --bin app
 WORKDIR /app
