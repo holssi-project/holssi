@@ -15,6 +15,12 @@ use crate::{
     Arch, Cli, Platform,
 };
 
+const BOILERPLATE_URL: &str = concat!(
+    "https://github.com/jedeop/holssi/releases/download/v",
+    env!("CARGO_PKG_VERSION"),
+    "/boilerplate.tar.gz"
+);
+
 pub(crate) fn process(cli: &Cli) -> Result<()> {
     check_options(cli)?;
 
@@ -29,7 +35,7 @@ pub(crate) fn process(cli: &Cli) -> Result<()> {
         if cli.local {
             copy_boilerplate(&cli.boilerplate, &boilerplate)?;
         } else {
-            clone_boilerplate(&boilerplate)?;
+            download_boilerplate(&boilerplate)?;
         }
 
         boilerplate.join("holssi")
@@ -97,11 +103,13 @@ pub(crate) fn check_options(cli: &Cli) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn clone_boilerplate(path: &Path) -> Result<()> {
+pub(crate) fn download_boilerplate(path: &Path) -> Result<()> {
     log("Info", "보일러플레이트를 다운로드합니다.");
 
+    log("TEST", &format!("BOILERPLATE_URL: {}", BOILERPLATE_URL));
+
     command(
-        "git clone -b boilerplate https://github.com/jedeop/holssi.git",
+        &format!("curl -L -o boilerplate.tar.gz {} && tar -xzf boilerplate.tar.gz && mv boilerplate holssi", BOILERPLATE_URL),
         path,
     )
     .context("보일러플레이트를 다운로드하지 못했습니다.")?;

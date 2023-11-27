@@ -61,7 +61,7 @@ docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out gh
 ### 준비물
 홀씨 CLI 도구를 실행하기 위해서는 다음의 프로그램이 컴퓨터에 미리 설치되어 있어야합니다.
 - [Node.js](https://nodejs.org/en/) (공식 홈페이지에서 설치해도 되고, `nvm` 등의 도구를 이용해서 설치할 수도 있습니다.)
-- [Git](https://git-scm.com/)
+- `tar`, `curl` 명령어
 - `zip` 명령어 (MacOS 타겟으로 실행할 때만 필요합니다. `--use-builder-zip` 옵션을 사용할 경우 필요하지 않습니다.)
 
 ### CLI 도구 준비하기
