@@ -1,6 +1,6 @@
 # https://github.com/marketplace/actions/rust-release-binary
 
-name: Release binary
+name: Release
 
 on:
   release:
@@ -44,8 +44,8 @@ jobs:
           submodules: true
       - name: Zip & Upload
         run: |
-          tar -zcvf boilerplate.tar.gz ./boilerplate
-          gh release upload $GITHUB_REF boilerplate.tar.gz
+          tar -zcf boilerplate.tar.gz ./boilerplate
+          gh release upload ${{ github.ref_name }} boilerplate.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
