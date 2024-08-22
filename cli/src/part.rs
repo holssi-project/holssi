@@ -16,7 +16,7 @@ use crate::{
 };
 
 const BOILERPLATE_URL: &str = concat!(
-    "https://github.com/jedeop/holssi/releases/download/v",
+    "https://github.com/holssi-project/holssi/releases/download/v",
     env!("CARGO_PKG_VERSION"),
     "/boilerplate.tar.gz"
 );

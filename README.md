@@ -26,7 +26,7 @@
 ## Docker 사용하기
 
 ```sh
-docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out ghcr.io/jedeop/holssi:latest [OPTIONS]
+docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out ghcr.io/holssi-project/holssi:latest [OPTIONS]
 ```
 ```
 Usage: holssi [OPTIONS] --name-en <NAME_EN> --author <AUTHOR> <FILE>
@@ -57,7 +57,7 @@ Options:
 ### 예제
 
 ```sh
-docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out ghcr.io/jedeop/holssi:latest --name-en EntryColorLoading --author jedeop
+docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out ghcr.io/holssi-project/holssi:latest --name-en EntryColorLoading --author jedeop
 ```
 
 ## 로컬에서 직접 사용하기
@@ -81,7 +81,7 @@ docker run --rm -v /path/to/file.ent:/in/project.ent -v /path/for/output:/out gh
 CLI 도구를 직접 빌드해 사용하려면 다음의 명령어를 실행하면 됩니다. 이를 위해서는 **Rust가 설치되어 있어야** 합니다.
 
 ```sh
-git clone https://github.com/jedeop/holssi.git
+git clone https://github.com/holssi-project/holssi.git
 cd holssi/cli
 cargo build
 ```
